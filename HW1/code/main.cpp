@@ -1,4 +1,5 @@
 #include <iostream>
+#include <utility>
 #include <vector>
 #include <string>
 #include "maze.h"
@@ -11,8 +12,9 @@ enum Face {
 int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
-    unsigned int row, col, rx, ry;
+    unsigned int row, col;
     unsigned long long step;
+    std::pair<unsigned int, unsigned int> posXY;
     std::cin >> col >> row >> step;
     std::vector<std::string> mp;
     for(size_t i = 0; i < row; ++i) {
@@ -20,8 +22,7 @@ int main() {
         std::cin >> s;
         for(size_t j = 0; j < col; ++j) {
             if(s[j] == 'O') {
-                rx = i;
-                ry = j;
+                posXY = {i, j};
                 s[j] = '.';
                 break;
             }
@@ -29,14 +30,13 @@ int main() {
         mp.push_back(s);
     }
     maze mz(row, col, mp);
-    robot bot(rx, ry, Face::up);
+    robot bot(posXY, Face::up);
     bool repeatFlag = false;
     for(size_t i = 0; i < step; ++i) {
-        unsigned int nx, ny;
-        bot.getNextPos(nx, ny);
-        while(!mz.isCanWalk(nx, ny)) {
+        std::pair<int, int> nextXY = bot.getNextPos();
+        while(!mz.canWalk(nextXY.first, nextXY.second)) {
             bot.turn(Face::right);
-            bot.getNextPos(nx, ny);
+            nextXY = bot.getNextPos();
         }
         if(!repeatFlag && i > 0) {
             unsigned long long repeatStep = bot.getRepeatPos();
@@ -49,7 +49,7 @@ int main() {
         }
         bot.goNext();
     }
-    bot.getBotPos(rx, ry);
-    std::cout << ry << " " << rx << std::endl;
+    posXY = bot.getBotPos();
+    std::cout << posXY.second << " " << posXY.first << std::endl;
     return 0;
 }

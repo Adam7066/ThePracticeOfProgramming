@@ -1,0 +1,7 @@
+# Code
+*.o
+
+# Latex
+*.aux
+*.log
+*.synctex.gz
