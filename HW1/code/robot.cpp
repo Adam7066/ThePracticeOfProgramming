@@ -1,22 +1,17 @@
 #include <iostream>
 #include "robot.h"
 
-robot::robot(const unsigned int ix, const unsigned int iy, const unsigned int idir) {
-    x = ix;
-    y = iy;
-    direction = idir;
-    step = 0;
-    history.clear();
+constexpr int robot::d[][2];
+
+robot::robot(const std::pair<unsigned int, unsigned int>posXY, const unsigned int dir) :
+    x(posXY.first), y(posXY.second), direction(dir), step(0) {}
+
+std::pair<unsigned int, unsigned int> robot::getBotPos() const {
+    return {x, y};
 }
 
-void robot::getBotPos(unsigned int &rx, unsigned int &ry) {
-    rx = x;
-    ry = y;
-}
-
-void robot::getNextPos(unsigned int &nx, unsigned int &ny) {
-    nx = x + d[direction][0];
-    ny = y + d[direction][1];
+std::pair<int, int> robot::getNextPos() const {
+    return {x + d[direction][0], y + d[direction][1]};
 }
 
 void robot::turn(const unsigned int td) {
@@ -30,7 +25,7 @@ void robot::goNext() {
     ++step;
 }
 
-unsigned long long robot::getRepeatPos() {
+unsigned long long robot::getRepeatPos() const {
     for(size_t i = 0; i < history.size(); ++i) {
         if(std::get<0>(history[i]) == x && std::get<1>(history[i]) == y && std::get<2>(history[i]) == direction) {
             return i + 1;

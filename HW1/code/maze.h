@@ -7,7 +7,6 @@ class maze {
     const unsigned int row, col;
     const std::vector<std::string> mp;
   public:
-    maze(const unsigned int row, const unsigned int col, const std::vector<std::string> mp):
-        row(row), col(col), mp(mp) {};
-    bool isCanWalk(const int, const int);
+    maze(const unsigned int, const unsigned int, const std::vector<std::string>);
+    bool canWalk(const int, const int) const;
 };
