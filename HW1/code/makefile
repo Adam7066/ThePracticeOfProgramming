@@ -6,7 +6,8 @@ EXE = main
 all: $(OBJS)
 	$(CC) -o $(EXE) $(OBJS) $(CFLAGS)
 
-%.o: %.c
+%.o: %.cpp
+	$(CC) -c $^ -o $@ $(CFLAGS)
 
 .PHONY: clean
 clean:
