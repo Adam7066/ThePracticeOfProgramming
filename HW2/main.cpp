@@ -13,12 +13,16 @@ class kitchen {
     std::vector<std::string> maze;
     int tableNum;
     std::vector<std::tuple<int, int, std::string>> tableInfo;
-    std::pair<int, int> dishwasherPosXY, windowPosXY, blueberriesPosXY, iceCreamPosXY;
+    std::pair<int, int> dishwasherPosXY, windowPosXY, blueberriesPosXY, iceCreamPosXY,
+        strawberriesPosXY, choppingboardPosXY;
   public:
     void addMaze(std::string &);
     void setTableNum(int);
-    void setTableInfo(int, int, std::string &);
+    void addTableInfo(int, int, std::string &);
+    void clearTableInfo();
+    std::pair<int, int> getTableItemPos(std::string &);
     std::pair<int, int> getPos(const std::string &) const;
+    bool isEmptyTable(std::pair<int, int>);
 };
 
 void kitchen::addMaze(std::string &kitchen_line) {
@@ -29,6 +33,8 @@ void kitchen::addMaze(std::string &kitchen_line) {
         else if(kitchen_line[x] == 'W') windowPosXY = std::make_pair(x, y);
         else if(kitchen_line[x] == 'B') blueberriesPosXY = std::make_pair(x, y);
         else if(kitchen_line[x] == 'I') iceCreamPosXY = std::make_pair(x, y);
+        else if(kitchen_line[x] == 'S') strawberriesPosXY = std::make_pair(x, y);
+        else if(kitchen_line[x] == 'C') choppingboardPosXY = std::make_pair(x, y);
     }
 }
 
@@ -36,8 +42,20 @@ void kitchen::setTableNum(int num) {
     tableNum = num;
 }
 
-void kitchen::setTableInfo(int x, int y, std::string &item) {
+void kitchen::addTableInfo(int x, int y, std::string &item) {
     tableInfo.emplace_back(x, y, item);
+}
+
+void kitchen::clearTableInfo() {
+    tableInfo.clear();
+}
+
+std::pair<int, int> kitchen::getTableItemPos(std::string &item) {
+    for(int i = 0; i < tableNum; ++i) {
+        if(std::get<2>(tableInfo[i]) == item)
+            return std::make_pair(std::get<0>(tableInfo[i]), std::get<1>(tableInfo[i]));
+    }
+    return std::make_pair(-1, -1);
 }
 
 std::pair<int, int> kitchen::getPos(const std::string &item) const {
@@ -45,7 +63,17 @@ std::pair<int, int> kitchen::getPos(const std::string &item) const {
     else if(item == "DISH") return dishwasherPosXY;
     else if(item == "BLUEBERRIES") return blueberriesPosXY;
     else if(item == "ICE_CREAM") return iceCreamPosXY;
-    return std::make_pair(-1, -1);
+    else if(item == "STRAWBERRIES") return strawberriesPosXY;
+    else if(item == "CHOPPED") return choppingboardPosXY;
+}
+
+bool kitchen::isEmptyTable(std::pair<int, int> posXY) {
+    if(maze[posXY.second][posXY.first] != '#') return false;
+    for(auto &it : tableInfo) {
+        if(std::get<0>(it) == posXY.first && std::get<1>(it) == posXY.second)
+            return false;
+    }
+    return true;
 }
 #pragma endregion kitchen
 
@@ -92,6 +120,9 @@ class player {
     void setItem(std::string &);
     std::pair<int, int> getPos() const;
     std::string getItem() const;
+    bool move(std::pair<int, int>);
+    void use(std::pair<int, int>);
+    double getDistance(std::pair<int, int>);
 };
 
 void player::setPos(int x, int y) {
@@ -110,6 +141,22 @@ std::pair<int, int> player::getPos() const {
 std::string player::getItem() const {
     return item;
 }
+
+bool player::move(std::pair<int, int> to) {
+    if(abs(posXY.first - to.first) <= 1 && abs(posXY.second - to.second) <= 1)
+        return false;
+    std::cout << "MOVE " << to.first << " " << to.second << std::endl;
+    return true;
+}
+
+void player::use(std::pair<int, int> item) {
+    std::cout << "USE " << item.first << " " << item.second << std::endl;
+}
+
+double player::getDistance(std::pair<int, int> item) {
+    int x = item.first - posXY.first, y = item.second - posXY.second;
+    return std::sqrt(x * x + y * y);
+}
 #pragma endregion player
 
 #pragma region maker
@@ -117,12 +164,20 @@ class maker {
   private:
     static const std::string itemType[];
     std::vector<std::string> dishList;
+    std::vector<std::string> needChopList;
     std::vector<std::string> splitStr(std::string &, std::string);
   public:
     void clearDishList();
-    bool startMake(std::string &, kitchen &, player &);
+    void cleanHand(kitchen &, player &);
+    void startMake(std::string &, kitchen &, player &);
+    void chopItem(kitchen &, player &);
+    void putItem(kitchen &, player &);
+    void takeItem(std::string &, kitchen &, player &);
 };
-const std::string maker::itemType[] = {"WINDOW", "DISH", "ICE_CREAM", "BLUEBERRIES"};
+
+const std::string maker::itemType[] = {"WINDOW", "DISH", "ICE_CREAM", "BLUEBERRIES",
+                                       "STRAWBERRIES", "CHOPPED"
+                                      };
 
 std::vector<std::string> maker::splitStr(std::string &str, std::string del) {
     std::vector<std::string> res;
@@ -138,31 +193,100 @@ std::vector<std::string> maker::splitStr(std::string &str, std::string del) {
 
 void maker::clearDishList() {
     dishList.clear();
+    needChopList.clear();
 }
 
-bool maker::startMake(std::string &dish, kitchen &cookhouse, player &me) {
+void maker::cleanHand(kitchen &cookhouse, player &me) {
+    std::pair<int, int> dishPosXY = cookhouse.getPos("DISH");
+    if(me.move(dishPosXY)) return;
+    else me.use(dishPosXY);
+}
+
+void maker::startMake(std::string &dish, kitchen &cookhouse, player &me) {
     if(dishList.empty()) {
         dishList = splitStr(dish, "-");
+        for(size_t i = 0; i < dishList.size(); ++i) {
+            if(dishList[i].find("CHOPPED") != std::string::npos) {
+                int start = dishList[i].find("_") + 1;
+                std::string tmpItem = dishList[i].substr(start, dishList[i].size() - start);
+                needChopList.push_back(tmpItem);
+            }
+        }
         dishList.push_back(itemType[0]); // add WINDOW
     }
-    std::string nextItem, meItem = me.getItem();
-    for(auto &it : dishList) {
-        if(meItem.find(it) == std::string::npos) {
-            nextItem = it;
-            break;
+    std::string meItem = me.getItem();
+    if(meItem.find("CHOPPED") != std::string::npos && meItem.find("DISH") == std::string::npos)
+        putItem(cookhouse, me);
+    else if(!needChopList.empty())
+        chopItem(cookhouse, me);
+    else takeItem(dish, cookhouse, me);
+}
+
+void maker::chopItem(kitchen &cookhouse, player &me) {
+    std::string meItem = me.getItem();
+    std::pair<int, int> dishPosXY;
+    std::string tmpItem;
+    if(meItem != "NONE" && meItem != needChopList[0]) {
+        putItem(cookhouse, me);
+        return;
+    }
+    if(meItem.find(needChopList[0]) == std::string::npos)
+        tmpItem = needChopList[0];
+    else tmpItem = "CHOPPED";
+    dishPosXY = cookhouse.getPos(tmpItem);
+    if(me.move(dishPosXY)) return;
+    else {
+        me.use(dishPosXY);
+        if(tmpItem == "CHOPPED")
+            needChopList.erase(needChopList.begin());
+        return;
+    }
+}
+
+void maker::putItem(kitchen &cookhouse, player &me) {
+    int d[8][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+    for(int i = 0; i < 8; ++i) {
+        std::pair<int, int> nPos = {me.getPos().first + d[i][0], me.getPos().second + d[i][1]};
+        if(cookhouse.isEmptyTable(nPos)) {
+            me.use(nPos);
+            return;
         }
     }
-    std::pair<int, int> mePosXY = me.getPos();
-    std::pair<int, int> dishPosXY = cookhouse.getPos(nextItem);
-    if(abs(mePosXY.first - dishPosXY.first) > 1 || abs(mePosXY.second - dishPosXY.second) > 1) {
-        std::cout << "MOVE " << dishPosXY.first << " " << dishPosXY.second << std::endl;
-        return false;
+    int nx = me.getPos().first, ny = me.getPos().second;
+    nx += (nx >= 5) ? -2 : +2;
+    ny += (ny >= 5) ? -2 : +2;
+    if(me.move(std::make_pair(nx, ny))) return;
+}
+
+void maker::takeItem(std::string &dish, kitchen &cookhouse, player &me) {
+    std::string meItem = me.getItem();
+    std::pair<int, int> dishPosXY;
+    for(auto &it : dishList) {
+        if(meItem.find(it) == std::string::npos) {
+            if(it.find("CHOPPED") != std::string::npos) {
+                dishPosXY = cookhouse.getTableItemPos(it);
+                if(dishPosXY.first == -1 && dishPosXY.second == -1) {
+                    int start = it.find("_") + 1;
+                    std::string tmpItem = it.substr(start, it.size() - start);
+                    needChopList.push_back(tmpItem);
+                    std::cout << "WAIT" << std::endl;
+                    return;
+                }
+            }
+            else {
+                dishPosXY = cookhouse.getPos(it);
+            }
+            if(me.move(dishPosXY)) return;
+            else {
+                me.use(dishPosXY);
+                if(it == "WINDOW") {
+                    dish.clear();
+                    clearDishList();
+                }
+                return;
+            }
+        }
     }
-    else {
-        std::cout << "USE " << dishPosXY.first << " " << dishPosXY.second << std::endl;
-        return false;
-    }
-    return true;
 }
 #pragma endregion maker
 
@@ -172,29 +296,32 @@ int main() {
     customer client;
     kitchen cookhouse;
     player me, partner;
+    std::string dish;
+    maker cook;
 
     int num_all_customers;
     std::cin >> num_all_customers;
     client.setNum(num_all_customers);
-    for (int i = 0; i < num_all_customers; i++) {
+    for (int i = 0; i < num_all_customers; ++i) {
         std::string customer_item;
         int customer_award;
         std::cin >> customer_item >> customer_award;
         client.addItemAward(customer_item, customer_award);
     }
     std::cin.ignore();
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 7; ++i) {
         std::string kitchen_line;
         getline(std::cin, kitchen_line);
         cookhouse.addMaze(kitchen_line);
     }
 
-    std::string dish = client.chooseDish();
-    maker cook;
-
     while (1) {
         int turns_remaining;
         std::cin >> turns_remaining;
+        if(turns_remaining <= 2) {
+            dish.clear();
+            cook.clearDishList();
+        }
         int player_x, player_y;
         std::string player_item;
         std::cin >> player_x >> player_y >> player_item;
@@ -208,11 +335,12 @@ int main() {
         int num_tables_with_items;
         std::cin >> num_tables_with_items;
         cookhouse.setTableNum(num_tables_with_items);
+        cookhouse.clearTableInfo();
         for (int i = 0; i < num_tables_with_items; i++) {
             int table_x, table_y;
             std::string item;
             std::cin >> table_x >> table_y >> item;
-            cookhouse.setTableInfo(table_x, table_y, item);
+            cookhouse.addTableInfo(table_x, table_y, item);
         }
         std::string oven_contents;
         int oven_timer;
@@ -221,17 +349,28 @@ int main() {
         std::cin >> num_customers;
         client.setNum(num_customers);
         client.clearItemAward();
+        bool dishFlag = false;
         for (int i = 0; i < num_customers; i++) {
             std::string customer_item;
             int customer_award;
             std::cin >> customer_item >> customer_award;
             client.addItemAward(customer_item, customer_award);
+            if(customer_item == dish) dishFlag = true;
         }
         // Write an action using cout. DON'T FORGET THE "<< endl"
         // To debug: cerr << "Debug messages..." << endl;
         // MOVE x y // USE x y // WAIT
-        if(cook.startMake(dish, cookhouse, me)) {
-            dish = client.chooseDish();
+        if(!dish.empty() && !dishFlag) {
+            if(me.getItem() == "NONE") {
+                dish.clear();
+                cook.clearDishList();
+                std::cout << "WAIT" << std::endl;
+            }
+            else cook.cleanHand(cookhouse, me);
+        }
+        else {
+            if(dish.empty()) dish = client.chooseDish();
+            cook.startMake(dish, cookhouse, me);
         }
     }
 }
