@@ -1,5 +1,6 @@
 # Code
 *.o
+*merge.cpp
 
 # Latex
 *.aux
