@@ -14,7 +14,7 @@ def readFile(path, filetype):
             if s.startswith('#ifndef') or s.startswith('#endif'):
                 s = f.readline()
                 continue
-            if s.startswith('#define') and s[-3:-1] == '_H':
+            if s.startswith('#define') and s.strip()[-2:] == '_H':
                 s = f.readline()
                 continue
             if s.startswith('#include <'):

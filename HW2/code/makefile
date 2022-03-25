@@ -5,11 +5,10 @@ EXE = main
 
 all: $(OBJS)
 	$(CC) -o $(EXE) $(OBJS) $(CFLAGS)
-	${RM} -r $(OBJS)
 
 %.o: %.cpp
 	$(CC) -c $^ -o $@ $(CFLAGS)
 
 .PHONY: clean
 clean:
-	${RM} -r $(EXE)
+	${RM} -r $(EXE) $(OBJS)
