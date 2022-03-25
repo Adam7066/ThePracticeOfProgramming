@@ -80,6 +80,7 @@ int main() {
         // Write an action using cout. DON'T FORGET THE "<< endl"
         // To debug: cerr << "Debug messages..." << endl;
         // MOVE x y // USE x y // WAIT
+        if(dish.empty()) cook.clearDishList();
         if(!dish.empty() && !dishFlag) {
             if(me.getItem() == "NONE") {
                 dish.clear();
@@ -89,9 +90,9 @@ int main() {
             else cook.cleanHand(cookhouse, me);
         }
         else {
-            if(dish.empty()) dish = client.chooseDish();
-            if(cook.checkDish(dish, cookhouse, me, checkDishFlag)) continue;
-            cook.startMake(dish, cookhouse, me);
+            if(dish.empty()) dish = client.chooseDish(cookhouse);
+            if(cook.checkDish(client, cookhouse, me, partner, checkDishFlag)) continue;
+            cook.startMake(dish, client, cookhouse, me);
         }
     }
 }

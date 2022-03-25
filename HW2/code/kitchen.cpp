@@ -47,6 +47,15 @@ std::pair<int, int> kitchen::getTableItemPos(std::string item) const {
     return {-1, -1};
 }
 
+std::pair<int, int> kitchen::getNearEmptyTablePos(std::string item) {
+    std::pair<int, int> wantNearPos = getPos(item);
+    for(int i = 0; i < 8; ++i) {
+        std::pair<int, int> nPos = {wantNearPos.first + tool::d[i][0], wantNearPos.second + tool::d[i][1]};
+        if(isEmptyTable(nPos)) return nPos;
+    }
+    return {-1, -1};
+}
+
 std::pair<int, int> kitchen::getPos(const std::string &item) const {
     if(item == "WINDOW") return windowPosXY;
     else if(item == "DISH") return dishwasherPosXY;
@@ -60,6 +69,8 @@ std::pair<int, int> kitchen::getPos(const std::string &item) const {
 }
 
 bool kitchen::isEmptyTable(std::pair<int, int> posXY) {
+    if(posXY.first < 0 || posXY.first > 10) return false;
+    if(posXY.second < 0 || posXY.second > 6) return false;
     if(maze[posXY.second][posXY.first] != '#') return false;
     for(auto &it : tableInfo) {
         if(std::get<0>(it) == posXY.first && std::get<1>(it) == posXY.second)

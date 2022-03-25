@@ -16,10 +16,33 @@ void customer::clearItemAward() {
     itemAward.clear();
 }
 
-std::string customer::chooseDish() {
-    sort(itemAward.begin(), itemAward.end(), [](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b) {
-        if(a.second != b.second) return a.second > b.second;
-        else return a.first < b.first;
-    });
-    return itemAward[0].first;
+std::string customer::chooseDish(kitchen &cookhouse) {
+    for(auto &it : itemAward) {
+        std::vector<std::string> itemList = tool::splitStr(it.first, "-");
+        bool flag = true;
+        for(auto &i : itemList) {
+            if(i == "CHOPPED_STRAWBERRIES" || i == "CROISSANT" || i == "TART") {
+                if(cookhouse.getTableItemPos(i) == std::make_pair(-1, -1)) {
+                    flag = false;
+                    break;
+                }
+            }
+        }
+        if(flag) return it.first;
+    }
+    std::string retStr;
+    double retW = 0.0;
+    for(auto &it : itemAward) {
+        std::vector<std::string> itemList = tool::splitStr(it.first, "-");
+        int tmpW = 0;
+        for(auto &i : itemList) {
+            if(i == "CHOPPED_STRAWBERRIES") tmpW += 2;
+            else if(i == "CROISSANT") tmpW += 3;
+            else if(i == "TART") tmpW += 5;
+            else tmpW += 1;
+        }
+        if(it.second * 1.0 / tmpW > retW)
+            retStr = it.first;
+    }
+    return retStr;
 }

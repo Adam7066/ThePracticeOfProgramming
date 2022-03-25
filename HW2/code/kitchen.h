@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <tuple>
+#include "tool.h"
 
 class kitchen {
   private:
@@ -21,7 +22,7 @@ class kitchen {
     void setOvenInfo(std::string &, int);
     std::pair<std::string, int> getOvenInfo() const;
     std::pair<int, int> getTableItemPos(std::string) const;
-
+    std::pair<int, int> getNearEmptyTablePos(std::string);
     std::pair<int, int> getPos(const std::string &) const;
     bool isEmptyTable(std::pair<int, int>);
 };
