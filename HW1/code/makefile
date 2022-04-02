@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -O2 -Wall -Wextra -std=c++14
+CFLAGS = -O2 -Wall -Wextra -std=c++17
 OBJS = main.o maze.o robot.o
 EXE = main
 
