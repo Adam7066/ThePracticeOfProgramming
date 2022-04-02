@@ -7,6 +7,8 @@
 \usepackage{listings} % 顯示 code 用
 \usepackage{color}
 \usepackage[x11names]{xcolor}
+\usepackage{multirow}
+\usepackage{amssymb}
 
 \setmainfont{Consolas}
 \setmonofont{DroidSansMono Nerd Font}
@@ -42,6 +44,77 @@
 \fancyhead[R]{\thepage/\pageref{LastPage}}
 
 \begin{document}
+    \begin{center}
+        \renewcommand\arraystretch{1.5}
+        \begin{tabular}{|l|l|}
+            \hline
+            查核規則&查核結果\\
+            \hline
+            \multirow{2}*{Avoid Long Functions \& Deep Nesting.}
+                &$\blacksquare$ 第一版程式碼已遵守規則，未修改\\
+            \cline{2-2}
+                &$\square$ 已修改，簡要說明如下：\\
+            \hline
+            \multirow{3}*{Avoid Magic Numbers.}
+                &$\square$ 第一版程式碼已遵守規則，未修改\\
+            \cline{2-2}
+                &$\blacksquare$ 已修改，簡要說明如下：\\
+                &賦予地圖上特殊字元（例如:\#）名稱\\
+            \hline
+                \multirow{3}*{Declare Variables as Locally as Possible.}
+                    &$\square$ 第一版程式碼已遵守規則，未修改\\
+                \cline{2-2}
+                    &$\blacksquare$ 已修改，簡要說明如下：\\
+                    &將 enum face 放進 robot class 中\\
+            \hline
+                \multirow{2}*{Minimize Global \& Shared Data.}
+                    &$\blacksquare$ 第一版程式碼已遵守規則，未修改\\
+                \cline{2-2}
+                    &$\square$ 已修改，簡要說明如下：\\
+            \hline
+                \multirow{2}*{Always Initialize Variables.}
+                    &$\blacksquare$ 第一版程式碼已遵守規則，未修改\\
+                \cline{2-2}
+                    &$\square$ 已修改，簡要說明如下：\\
+            \hline
+                \multirow{2}*{Avoid Macros.}
+                    &$\blacksquare$ 第一版程式碼已遵守規則，未修改\\
+                \cline{2-2}
+                    &$\square$ 已修改，簡要說明如下：\\
+            \hline
+                \multirow{2}*{Use const Proactively.}
+                    &$\blacksquare$ 第一版程式碼已遵守規則，未修改\\
+                \cline{2-2}
+                    &$\square$ 已修改，簡要說明如下：\\
+            \hline
+                \multirow{2}*{\shortstack[l]{Take Parameters Appropriately by Value,\\Pointer, or Reference.}}
+                    &$\blacksquare$ 第一版程式碼已遵守規則，未修改\\
+                \cline{2-2}
+                    &$\square$ 已修改，簡要說明如下：\\
+            \hline
+                \multirow{2}*{Hide Information.}
+                    &$\blacksquare$ 第一版程式碼已遵守規則，未修改\\
+                \cline{2-2}
+                    &$\square$ 已修改，簡要說明如下：\\
+            \hline
+                \multirow{2}*{Know When and How to Code for Scalability.}
+                    &$\blacksquare$ 第一版程式碼已遵守規則，未修改\\
+                \cline{2-2}
+                    &$\square$ 已修改，簡要說明如下：\\
+            \hline
+                \multirow{2}*{Don't Optimize Prematurely.}
+                    &$\blacksquare$ 第一版程式碼已遵守規則，未修改\\
+                \cline{2-2}
+                    &$\square$ 已修改，簡要說明如下：\\
+            \hline
+                \multirow{2}*{Don't Pessimize Prematurely.}
+                    &$\blacksquare$ 第一版程式碼已遵守規則，未修改\\
+                \cline{2-2}
+                    &$\square$ 已修改，簡要說明如下：\\
+            \hline
+        \end{tabular}
+    \end{center}
+    \newpage
     \begin{itemize}
         \item main.cpp
             \lstinputlisting{../code/main.cpp}

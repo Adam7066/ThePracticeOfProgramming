@@ -5,10 +5,6 @@
 #include "maze.h"
 #include "robot.h"
 
-enum Face {
-    up, right, down, left
-};
-
 int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
@@ -20,22 +16,19 @@ int main() {
     for(size_t i = 0; i < row; ++i) {
         std::string s;
         std::cin >> s;
-        for(size_t j = 0; j < col; ++j) {
-            if(s[j] == 'O') {
-                posXY = {i, j};
-                s[j] = '.';
-                break;
-            }
+        if(auto findPos = s.find(maze::robotChar); findPos != std::string::npos) {
+            posXY = {i, findPos};
+            s[findPos] = maze::freeSpaceChar;
         }
         mp.push_back(s);
     }
     maze mz(row, col, mp);
-    robot bot(posXY, Face::up);
+    robot bot(posXY, robot::face::up);
     bool repeatFlag = false;
     for(size_t i = 0; i < step; ++i) {
         std::pair<int, int> nextXY = bot.getNextPos();
         while(!mz.canWalk(nextXY.first, nextXY.second)) {
-            bot.turn(Face::right);
+            bot.turn(robot::face::right);
             nextXY = bot.getNextPos();
         }
         if(!repeatFlag && i > 0) {
