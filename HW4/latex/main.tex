@@ -1,0 +1,57 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{fontspec}
+\usepackage[CheckSingle, CJKmath]{xeCJK}
+\usepackage[left=1cm, right=1cm, top=2.5cm, headheight=2.5cm]{geometry}
+\usepackage{fancyhdr} % 頁首頁尾
+\usepackage{lastpage} % 獲得總頁數
+\usepackage{listings} % 顯示 code 用
+\usepackage{color}
+\usepackage[x11names]{xcolor}
+\usepackage{multirow}
+\usepackage{amssymb}
+
+\setmainfont{Consolas}
+\setmonofont{DroidSansMono Nerd Font}
+\setCJKmainfont{Noto Sans CJK TC}
+\setCJKmonofont{Noto Sans CJK TC}
+
+\lstset{
+    language=C++,
+    basicstyle=\footnotesize\ttfamily,
+    numbers=left,
+    numberstyle=\footnotesize,
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{white},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=false,
+    tabsize=2,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+    escapeinside={\%*}{*)},
+    morekeywords={*},
+    keywordstyle=\bfseries\color{Blue1},
+    commentstyle=\itshape\color{Red4},
+    stringstyle=\itshape\color{Green4},
+}
+
+\pagestyle{fancy}
+\fancyfoot{}
+\fancyhead[C]{TPP2022-HW4-40947027S-余原齊}
+\fancyhead[R]{\thepage/\pageref{LastPage}}
+
+\begin{document}
+    \begin{itemize}
+        \item main.cpp
+            \lstinputlisting{../code/main.cpp}
+        \item String.h
+            \lstinputlisting{../code/String.h}
+        \item String.cpp
+            \lstinputlisting{../code/String.cpp}
+        \item makefile
+            \lstinputlisting{../code/makefile}
+    \end{itemize}
+\end{document}
